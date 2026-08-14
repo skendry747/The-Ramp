@@ -80,7 +80,7 @@ export default function Home() {
       {screen === "Profile" && <Profile profile={profile} setProfile={setProfile} />}
 
       {selected && <FlyInDetail flyIn={selected} joined={joined} setJoined={setJoined} messages={messages} message={message} setMessage={setMessage} submitMessage={submitMessage} onClose={() => setSelected(null)} />}
-      <footer><strong>THE RAMP</strong><span>Built for the people who make aviation feel smaller.</span><a href="https://madethis.com" target="_blank" rel="noreferrer">Made with MadeThis ↗</a></footer>
+      <footer><strong>THE RAMP</strong><span>Built for the people who make aviation feel smaller.</span><a href="https://madethis.com" target="_blank" rel="noreferrer">Built with MadeThis ↗</a></footer>
     </main>
   );
 }
