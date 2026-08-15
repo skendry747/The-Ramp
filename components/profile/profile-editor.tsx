@@ -1,0 +1,10 @@
+"use client";
+
+import { useDemo } from "@/components/ui/demo-provider";
+
+export function ProfileEditor() {
+  const { profile, setProfile, flyIns, joinedIds } = useDemo();
+  const hosted = flyIns.filter((flyIn) => flyIn.host === profile.name);
+  const joined = flyIns.filter((flyIn) => joinedIds.has(flyIn.id));
+  return <section className="page-shell profile-page"><div className="profile-card"><div className="profile-banner"><span>THE RAMP</span><p>MEET. FLY. CONNECT.</p></div><div className="profile-content"><div className="profile-avatar" aria-hidden="true">{profile.name.split(" ").map((part) => part[0]).join("").slice(0, 2)}</div><p className="eyebrow">DEMO PILOT PROFILE</p><h1>{profile.name}</h1><p className="home-airport">⌖ {profile.home}</p><p className="profile-aircraft">{profile.aircraft}</p><p className="profile-bio">{profile.bio}</p><div className="profile-activity"><div><b>{hosted.length}</b><span>Hosted</span></div><div><b>{joined.length}</b><span>Joined</span></div><div><b>{hosted.length + joined.length}</b><span>Upcoming</span></div></div><div className="activity-summary"><p className="eyebrow">YOUR NEXT RAMP DAY</p><b>{joined[0]?.title ?? hosted[0]?.title ?? "Choose a fly-in to get started"}</b><span>{joined[0] || hosted[0] ? "Your local activity is visible only in this browser session." : "Explore upcoming fly-ins and join the one that fits your next flight."}</span></div><div className="profile-form"><p className="eyebrow">EDIT DEMO PROFILE</p><label>Name<input value={profile.name} onChange={(event) => setProfile({ ...profile, name: event.target.value })} /></label><label>Home airport<input value={profile.home} onChange={(event) => setProfile({ ...profile, home: event.target.value })} /></label><label>Aircraft<input value={profile.aircraft} onChange={(event) => setProfile({ ...profile, aircraft: event.target.value })} /></label><label>About<textarea value={profile.bio} onChange={(event) => setProfile({ ...profile, bio: event.target.value })} /></label><p className="demo-caption">Changes update immediately in this browser and reset after a refresh.</p></div></div></div></section>;
+}
