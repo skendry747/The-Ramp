@@ -1,13 +1,10 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState } from "react";
-import { demoFlyIns } from "@/lib/data/fly-ins";
-import type { ChatMessage, FlyIn } from "@/lib/types/fly-in";
+import type { ChatMessage } from "@/lib/types/fly-in";
 
 type Profile = { name: string; home: string; bio: string; aircraft: string };
 type DemoContextValue = {
-  flyIns: FlyIn[];
-  createFlyIn: (flyIn: FlyIn) => void;
   joinedIds: Set<string>;
   toggleJoin: (id: string) => void;
   chats: Record<string, ChatMessage[]>;
@@ -20,14 +17,11 @@ const DemoContext = createContext<DemoContextValue | null>(null);
 const welcomeMessage: ChatMessage = { author: "Mia", text: "Heads up: west ramp is open after 6:00. See you there!", mine: false };
 
 export function DemoProvider({ children }: { children: React.ReactNode }) {
-  const [flyIns, setFlyIns] = useState(demoFlyIns);
   const [joinedIds, setJoinedIds] = useState<Set<string>>(new Set());
   const [chats, setChats] = useState<Record<string, ChatMessage[]>>({});
   const [profile, setProfile] = useState<Profile>({ name: "Shane Kendry", home: "KADS · Addison", bio: "Weekend pilot, always up for a new route and a good ramp conversation.", aircraft: "Cessna 172 Skyhawk" });
 
   const value = useMemo(() => ({
-    flyIns,
-    createFlyIn: (flyIn: FlyIn) => setFlyIns((current) => [flyIn, ...current]),
     joinedIds,
     toggleJoin: (id: string) => setJoinedIds((current) => {
       const next = new Set(current);
@@ -38,7 +32,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     addMessage: (id: string, text: string) => setChats((current) => ({ ...current, [id]: [...(current[id] ?? [welcomeMessage]), { author: "You", text, mine: true }] })),
     profile,
     setProfile,
-  }), [chats, flyIns, joinedIds, profile]);
+  }), [chats, joinedIds, profile]);
 
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;
 }
@@ -53,4 +47,3 @@ export function useDemoChat(id: string) {
   const { chats } = useDemo();
   return chats[id] ?? [welcomeMessage];
 }
-

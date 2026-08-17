@@ -7,7 +7,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "The Ramp | Turn flying into connection",
-  description: "A browser-only demo for discovering and hosting aviation fly-ins.",
+  description: "Discover and host local aviation fly-ins with The Ramp.",
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
