@@ -5,7 +5,7 @@ The Ramp is a polished aviation social product for discovering and hosting fly-i
 ## What’s included
 
 - Discover page with sample fly-ins and a toggleable illustrative map
-- Fly-in detail panel with local join state and in-browser group chat demo
+- Persistent fly-in detail and attendance with an in-browser group chat demo
 - Create Fly-In form that creates a temporary local card
 - Supabase-backed authenticated pilot profile (with local demo fly-ins retained)
 - Responsive desktop/mobile navigation
@@ -14,7 +14,7 @@ The Ramp is a polished aviation social product for discovering and hosting fly-i
 
 ## Supabase foundation (Phase 3.2)
 
-The app now uses Supabase Auth and a persistent `profiles` record for the signed-in pilot. Fly-ins, attendance, chat, and the create flow intentionally remain local browser demos until later phases.
+The app now uses Supabase Auth and persistent records for pilot profiles, fly-ins, and attendance. Group chat intentionally remains a local browser demo until its later phase.
 
 ### Local configuration
 

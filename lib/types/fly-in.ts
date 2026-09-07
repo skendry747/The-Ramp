@@ -1,5 +1,12 @@
 export type FlyInCategory = "Social" | "Breakfast" | "Scenic" | "Community";
 
+export type AttendeeProfile = {
+  id: string;
+  displayName: string;
+  homeAirport: string | null;
+  aircraft: string | null;
+};
+
 export type FlyIn = {
   id: string;
   title: string;
@@ -13,6 +20,7 @@ export type FlyIn = {
   description: string;
   attendees: number;
   attendeeNames: string[];
+  attendeeProfiles?: AttendeeProfile[];
   color: "blue" | "orange";
   position: { left: string; top: string };
   airportId?: string;

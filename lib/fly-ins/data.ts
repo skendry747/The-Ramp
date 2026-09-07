@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { eventDateTime } from "@/lib/fly-ins/time";
+import { getAttendanceForFlyIns } from "@/lib/attendance/data";
 import type { AirportRecord, FlyInRecord, ProfileRecord } from "@/lib/supabase/domain-types";
 import type { FlyIn } from "@/lib/types/fly-in";
 
@@ -48,7 +49,17 @@ async function hydrate(records: FlyInRecord[]) {
   ]);
   const airportMap = new Map((airports ?? []).map((item) => [item.id, item as AirportOption]));
   const hostMap = new Map((hosts ?? []).map((item) => [item.id, item as Pick<ProfileRecord, "id" | "display_name">]));
-  return records.map((record) => mapFlyIn(record, airportMap.get(record.airport_id), hostMap.get(record.host_id)));
+  const flyIns = records.map((record) => mapFlyIn(record, airportMap.get(record.airport_id), hostMap.get(record.host_id)));
+  const attendance = await getAttendanceForFlyIns(flyIns.map((flyIn) => ({ id: flyIn.id, hostId: flyIn.hostId! })));
+  return flyIns.map((flyIn) => {
+    const summary = attendance.get(flyIn.id);
+    return {
+      ...flyIn,
+      attendees: summary?.count ?? 0,
+      attendeeNames: summary?.names ?? [],
+      attendeeProfiles: summary?.profiles ?? [],
+    };
+  });
 }
 
 export async function getDiscoverableFlyIns(limit?: number): Promise<FlyInLoadResult> {
@@ -57,7 +68,11 @@ export async function getDiscoverableFlyIns(limit?: number): Promise<FlyInLoadRe
   if (limit) query = query.limit(limit);
   const { data, error } = await query;
   if (error) return { data: [], error: true };
-  return { data: await hydrate((data ?? []) as FlyInRecord[]), error: false };
+  try {
+    return { data: await hydrate((data ?? []) as FlyInRecord[]), error: false };
+  } catch {
+    return { data: [], error: true };
+  }
 }
 
 export async function getFlyIn(id: string) {
