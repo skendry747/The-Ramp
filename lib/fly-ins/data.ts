@@ -3,15 +3,16 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { eventDateTime } from "@/lib/fly-ins/time";
 import { getAttendanceForFlyIns } from "@/lib/attendance/data";
+import type { AirportOption } from "@/lib/airports";
 import type { AirportRecord, FlyInRecord, ProfileRecord } from "@/lib/supabase/domain-types";
 import type { FlyIn } from "@/lib/types/fly-in";
 
-export type AirportOption = Pick<AirportRecord, "id" | "identifier" | "name" | "city" | "state">;
+type FlyInAirport = Pick<AirportRecord, "id" | "identifier" | "name" | "city" | "state">;
 export type FlyInLoadResult = { data: FlyIn[]; error: boolean };
 
 const flyInFields = "id,host_id,airport_id,title,starts_at,timezone,category,visibility,status,briefing";
 
-function mapFlyIn(record: FlyInRecord, airport?: AirportOption, host?: Pick<ProfileRecord, "id" | "display_name">): FlyIn {
+function mapFlyIn(record: FlyInRecord, airport?: FlyInAirport, host?: Pick<ProfileRecord, "id" | "display_name">): FlyIn {
   const local = eventDateTime(record.starts_at, record.timezone);
   const location = airport ? [airport.city, airport.state].filter(Boolean).join(", ") : "Airport details unavailable";
   const seed = [...record.id].reduce((total, character) => total + character.charCodeAt(0), 0);
@@ -47,7 +48,7 @@ async function hydrate(records: FlyInRecord[]) {
     supabase.from("airports").select("id,identifier,name,city,state").in("id", airportIds),
     supabase.from("profiles").select("id,display_name").in("id", hostIds),
   ]);
-  const airportMap = new Map((airports ?? []).map((item) => [item.id, item as AirportOption]));
+  const airportMap = new Map((airports ?? []).map((item) => [item.id, item as FlyInAirport]));
   const hostMap = new Map((hosts ?? []).map((item) => [item.id, item as Pick<ProfileRecord, "id" | "display_name">]));
   const flyIns = records.map((record) => mapFlyIn(record, airportMap.get(record.airport_id), hostMap.get(record.host_id)));
   const attendance = await getAttendanceForFlyIns(flyIns.map((flyIn) => ({ id: flyIn.id, hostId: flyIn.hostId! })));
@@ -83,8 +84,12 @@ export async function getFlyIn(id: string) {
   return (await hydrate([data as FlyInRecord]))[0] ?? null;
 }
 
-export async function getAirports(): Promise<AirportOption[]> {
+export async function getAirportOption(id: string): Promise<AirportOption | null> {
   const supabase = await createClient();
-  const { data } = await supabase.from("airports").select("id,identifier,name,city,state").eq("is_active", true).order("identifier");
-  return (data ?? []) as AirportOption[];
+  const { data, error } = await supabase.from("airports")
+    .select("id,identifier,faa_lid,icao_id,name,city,state,country_code,facility_type_code,facility_use_code,operational_status_code,tower_type_code,is_active")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error("The selected airport could not be loaded.");
+  return data ? data as AirportOption : null;
 }

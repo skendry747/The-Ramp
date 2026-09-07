@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "airports:import": "node scripts/import-faa-airports.mjs",
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",

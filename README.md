@@ -4,10 +4,11 @@ The Ramp is a polished aviation social product for discovering and hosting fly-i
 
 ## What’s included
 
-- Discover page with sample fly-ins and a toggleable illustrative map
+- Discover page with persistent fly-ins and a toggleable illustrative map
 - Persistent fly-in detail and attendance with an in-browser group chat demo
-- Create Fly-In form that creates a temporary local card
-- Supabase-backed authenticated pilot profile (with local demo fly-ins retained)
+- Persistent fly-in creation and host editing
+- Supabase-backed authenticated pilot profiles
+- Server-side FAA airport search for profile and fly-in airport selection
 - Responsive desktop/mobile navigation
 - Clear demo-data disclosures and a MadeThis footer
 - Supabase SSR client utilities, PostgreSQL migration foundation, RLS policies, and development airport seed data
@@ -25,7 +26,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-`.env.local` is ignored by Git and must never be committed. Do not add a service-role key for this phase.
+`.env.local` is ignored by Git and must never be committed. Never put a service-role key in a `NEXT_PUBLIC_` variable.
 
 ### Database workflow
 
@@ -39,6 +40,28 @@ The migration is located at `supabase/migrations/20260815150000_initial_the_ramp
 The migration creates the profile bootstrap trigger on `auth.users`, core fly-in/attendance/chat tables, moderation foundation tables, indexes, timestamp triggers, and RLS policies. It does not create Storage buckets; that is intentionally deferred until image upload work begins.
 
 For Phase 3.2+, normal Discover queries must read `public.discoverable_fly_ins`, which explicitly contains only scheduled public fly-ins. A direct detail route may query `public.fly_ins` by its UUID for a scheduled public or unlisted fly-in. In V1, unlisted means link-only—not private or access-token-protected.
+
+### Nationwide FAA airport updates
+
+The airport migration is `supabase/migrations/20260907170000_nationwide_faa_airports.sql`. Apply it before running an import. It extends the existing table in place, preserving the UUIDs referenced by profiles and fly-ins, and adds public active-facility search plus indexed FAA/ICAO/name/city/state lookup.
+
+Airport data comes only from the FAA 28-Day NASR `APT_BASE.csv`. For each new 28-day cycle:
+
+1. Download the official FAA `APT_CSV.zip` for that cycle from the [FAA NASR subscription page](https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/NASR_Subscription/) and extract `APT_BASE.csv`.
+2. Create an untracked `.env.faa-import.local` file containing `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Keep this server-only key out of `.env.local`, source control, command history, and all `NEXT_PUBLIC_` variables.
+3. Validate the file without database writes:
+
+```powershell
+npm run airports:import -- --file "C:\path\to\APT_BASE.csv" --effective-date 2026-09-03 --dry-run
+```
+
+4. Run the idempotent import:
+
+```powershell
+npm run airports:import -- --file "C:\path\to\APT_BASE.csv" --effective-date 2026-09-03
+```
+
+The importer selects U.S.-coded FAA facilities, updates existing rows without changing their UUIDs, inserts new facilities, retains closed facilities, and marks FAA rows absent from the latest cycle inactive. It refuses to import a cycle older than data already in the database. Update `--effective-date` to the date printed in the new FAA file every cycle.
 
 ### Auth dashboard configuration
 
