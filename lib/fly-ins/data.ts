@@ -12,7 +12,7 @@ export type FlyInLoadResult = { data: FlyIn[]; error: boolean };
 
 const flyInFields = "id,host_id,airport_id,title,starts_at,timezone,category,visibility,status,briefing";
 
-function mapFlyIn(record: FlyInRecord, airport?: FlyInAirport, host?: Pick<ProfileRecord, "id" | "display_name">): FlyIn {
+function mapFlyIn(record: FlyInRecord, airport?: FlyInAirport, host?: Pick<ProfileRecord, "id" | "display_name" | "avatar_path">): FlyIn {
   const local = eventDateTime(record.starts_at, record.timezone);
   const location = airport ? [airport.city, airport.state].filter(Boolean).join(", ") : "Airport details unavailable";
   const seed = [...record.id].reduce((total, character) => total + character.charCodeAt(0), 0);
@@ -31,6 +31,7 @@ function mapFlyIn(record: FlyInRecord, airport?: FlyInAirport, host?: Pick<Profi
     status: record.status,
     hostId: record.host_id,
     host: host?.display_name ?? "Ramp pilot",
+    hostAvatarPath: host?.avatar_path ?? null,
     description: record.briefing || "The host has not added briefing notes yet.",
     attendees: 0,
     attendeeNames: host?.display_name ? [host.display_name] : [],
@@ -46,10 +47,10 @@ async function hydrate(records: FlyInRecord[]) {
   const hostIds = [...new Set(records.map((item) => item.host_id))];
   const [{ data: airports }, { data: hosts }] = await Promise.all([
     supabase.from("airports").select("id,identifier,name,city,state").in("id", airportIds),
-    supabase.from("profiles").select("id,display_name").in("id", hostIds),
+    supabase.from("profiles").select("id,display_name,avatar_path").in("id", hostIds),
   ]);
   const airportMap = new Map((airports ?? []).map((item) => [item.id, item as FlyInAirport]));
-  const hostMap = new Map((hosts ?? []).map((item) => [item.id, item as Pick<ProfileRecord, "id" | "display_name">]));
+  const hostMap = new Map((hosts ?? []).map((item) => [item.id, item as Pick<ProfileRecord, "id" | "display_name" | "avatar_path">]));
   const flyIns = records.map((record) => mapFlyIn(record, airportMap.get(record.airport_id), hostMap.get(record.host_id)));
   const attendance = await getAttendanceForFlyIns(flyIns.map((flyIn) => ({ id: flyIn.id, hostId: flyIn.hostId! })));
   return flyIns.map((flyIn) => {

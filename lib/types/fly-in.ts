@@ -5,6 +5,7 @@ export type AttendeeProfile = {
   displayName: string;
   homeAirport: string | null;
   aircraft: string | null;
+  avatarPath: string | null;
 };
 
 export type FlyIn = {
@@ -17,6 +18,7 @@ export type FlyIn = {
   tags: string[];
   category: FlyInCategory;
   host: string;
+  hostAvatarPath?: string | null;
   description: string;
   attendees: number;
   attendeeNames: string[];

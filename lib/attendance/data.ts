@@ -23,7 +23,7 @@ export async function getAttendanceForFlyIns(flyIns: FlyInIdentity[]) {
   if (!profileIds.length) return summaries;
 
   const { data: profiles, error: profileError } = await supabase.from("profiles")
-    .select("id,display_name,home_airport_id,aircraft").in("id", profileIds);
+    .select("id,display_name,home_airport_id,aircraft,avatar_path").in("id", profileIds);
   if (profileError) throw new Error("Attendee profiles could not be loaded.");
   const homeAirportIds = [...new Set((profiles ?? []).map((profile) => profile.home_airport_id).filter((id): id is string => Boolean(id)))];
   const { data: airports } = homeAirportIds.length
@@ -35,6 +35,7 @@ export async function getAttendanceForFlyIns(flyIns: FlyInIdentity[]) {
     displayName: profile.display_name,
     homeAirport: profile.home_airport_id ? airportMap.get(profile.home_airport_id) ?? null : null,
     aircraft: profile.aircraft,
+    avatarPath: profile.avatar_path,
   } satisfies AttendeeProfile]));
 
   for (const row of attendeeRows) {
