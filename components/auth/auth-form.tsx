@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackGoogleAnalyticsEvent } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
 
 type AuthMode = "login" | "signup" | "forgot";
@@ -57,7 +58,12 @@ export function AuthForm({ mode, notice, returnTo = "/profile" }: { mode: AuthMo
           emailRedirectTo: window.location.origin + "/auth/confirm?next=/profile",
         },
       });
-      setMessage(error ? messageFor(error) : "Check your email to verify your address before signing in.");
+      if (error) {
+        setMessage(messageFor(error));
+      } else {
+        trackGoogleAnalyticsEvent("sign_up", { method: "email" });
+        setMessage("Check your email to verify your address before signing in.");
+      }
       setIsSubmitting(false);
       return;
     }
