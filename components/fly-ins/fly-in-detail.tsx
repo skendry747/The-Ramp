@@ -1,8 +1,4 @@
-"use client";
-
-import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { useDemo, useDemoChat } from "@/components/ui/demo-provider";
 import { formatDate, formatTime } from "@/lib/format";
 import { AttendeeStack } from "@/components/ui/attendee-stack";
 import { AttendanceControl } from "@/components/fly-ins/attendance-control";
@@ -20,11 +16,7 @@ type FlyInDetailProps = {
 };
 
 export function FlyInDetail({ flyIn, isHost, currentUserId, isAuthenticated, isVerified, isAttending }: FlyInDetailProps) {
-  const { addMessage } = useDemo();
-  const messages = useDemoChat(flyIn.id);
-  const [message, setMessage] = useState("");
   const active = flyIn.status === "scheduled";
-  function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const trimmed = message.trim(); if (!trimmed || !active) return; addMessage(flyIn.id, trimmed); setMessage(""); }
   const attendeeProfiles = flyIn.attendeeProfiles ?? [];
   const hiddenAttendeeCount = Math.max(0, flyIn.attendees - attendeeProfiles.length);
 
@@ -37,7 +29,6 @@ export function FlyInDetail({ flyIn, isHost, currentUserId, isAuthenticated, isV
         <div className="attendee-list">{attendeeProfiles.length ? attendeeProfiles.map((attendee) => <div className="attendee-row" key={attendee.id}><PilotAvatar name={attendee.displayName} avatarPath={attendee.avatarPath} className="mini-avatar" /><div><b>{attendee.displayName}</b><small>{[attendee.aircraft, attendee.homeAirport].filter(Boolean).join(" · ") || "Pilot profile"}</small></div>{attendee.id === currentUserId ? <em>You</em> : null}</div>) : <p className="attendee-empty">No pilots have joined yet.</p>}{hiddenAttendeeCount > 0 && <p className="attendee-private">+ {hiddenAttendeeCount} private {hiddenAttendeeCount === 1 ? "pilot" : "pilots"}</p>}</div>
         <AttendanceControl flyInId={flyIn.id} isActive={active} isAuthenticated={isAuthenticated} isVerified={isVerified} isHost={isHost} initialJoined={isAttending} />
       </aside>
-      <section className="chat" aria-labelledby="chat-heading"><p className="eyebrow">TEMPORARY DEMO CHAT</p><h2 id="chat-heading">Flight line</h2><div className="messages" aria-live="polite">{messages.map((entry, index) => <div className={entry.mine ? "message mine" : "message"} key={`${entry.author}-${index}`}><b>{entry.author}</b><p>{entry.text}</p></div>)}</div><form onSubmit={submit}><label className="sr-only" htmlFor="chat-message">Message the group</label><input id="chat-message" value={message} disabled={!active} onChange={(event) => setMessage(event.target.value)} placeholder="Say something to the group" /><button disabled={!active}>Send</button></form><p className="demo-caption">Messages stay in this browser session only and are not part of the persistent event record.</p></section>
     </div>
   </section>;
 }

@@ -36,6 +36,5 @@ export function FlyInForm({ airport, flyIn }: { airport?: AirportOption | null; 
     </div><label>Briefing notes<span className="field-hint">Include the plan, arrival details, or anything pilots should know.</span><textarea name="briefing" required maxLength={4000} defaultValue={flyIn?.description} placeholder="What should pilots know before they arrive?" /></label></div>
     {state.error && <p className="form-error" role="alert">{state.error}</p>}
     <button className="primary" type="submit" disabled={pending}>{pending ? "Saving…" : flyIn ? "Save fly-in" : "Create fly-in"} <span aria-hidden="true">↗</span></button>
-    <p className="demo-caption">Fly-in details and attendance publish to The Ramp. Group chat remains a temporary browser demo.</p>
   </form>;
 }

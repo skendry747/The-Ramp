@@ -31,5 +31,3 @@ export type FlyIn = {
   visibility?: "public" | "unlisted";
   status?: "scheduled" | "cancelled" | "completed";
 };
-
-export type ChatMessage = { author: string; text: string; mine: boolean };

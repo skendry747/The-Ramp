@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
-import { DemoProvider } from "@/components/ui/demo-provider";
 import { Footer } from "@/components/layout/footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { createClient } from "@/lib/supabase/server";
@@ -18,11 +17,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>
-        <DemoProvider>
-          <SiteHeader isAuthenticated={isAuthenticated} />
-          <main>{children}</main>
-          <Footer />
-        </DemoProvider>
+        <SiteHeader isAuthenticated={isAuthenticated} />
+        <main>{children}</main>
+        <Footer />
         <GoogleAnalytics />
       </body>
     </html>
