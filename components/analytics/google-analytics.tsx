@@ -3,36 +3,7 @@
 import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef } from "react";
-import { GA_MEASUREMENT_ID } from "@/lib/analytics";
-
-type Gtag = (...args: unknown[]) => void;
-
-declare global {
-  interface Window {
-    dataLayer?: unknown[];
-    gtag?: Gtag;
-    __theRampGoogleAnalyticsInitialized?: boolean;
-  }
-}
-
-function initializeGoogleAnalytics(): Gtag {
-  const dataLayer = (window.dataLayer = window.dataLayer ?? []);
-  const gtag =
-    window.gtag ??
-    function gtag() {
-      dataLayer.push(arguments);
-    };
-
-  window.gtag = gtag;
-
-  if (!window.__theRampGoogleAnalyticsInitialized) {
-    gtag("js", new Date());
-    gtag("config", GA_MEASUREMENT_ID, { send_page_view: false });
-    window.__theRampGoogleAnalyticsInitialized = true;
-  }
-
-  return gtag;
-}
+import { GA_MEASUREMENT_ID, initializeGoogleAnalytics } from "@/lib/analytics";
 
 function PageViewTracker() {
   const pathname = usePathname();
@@ -46,6 +17,8 @@ function PageViewTracker() {
     if (lastTrackedPath.current === pagePath) return;
 
     const gtag = initializeGoogleAnalytics();
+    if (!gtag) return;
+
     gtag("event", "page_view", {
       page_location: window.location.href,
       page_path: pagePath,
