@@ -18,14 +18,16 @@ This repository uses a coordinated specialist workflow. The coordinator owns the
 - **QA / Bug Hunter** — regression analysis, edge cases, mobile behavior, auth flows, and validation. See `.agents/qa.md`.
 - **UI / Product** — pilot-facing UX, clarity, accessibility, responsive behavior, and product consistency. See `.agents/ui-product.md`.
 - **Database / Security** — Supabase schema, migrations, RLS, authorization, secrets, and data integrity. See `.agents/database-security.md`.
+- **Growth & Outreach** — audience development, promotion opportunities, partnerships, campaign ideas, and outreach drafts. See `.agents/growth-outreach.md`.
 
 ## Routing rules
 
 1. Every code change gets a Lead Developer pass and a QA pass.
 2. Any user-facing behavior or layout change also gets a UI / Product pass.
 3. Any Supabase, auth, profile, fly-in visibility, attendance, chat, storage, API, or server-side data change also gets a Database / Security pass.
-4. Specialists should review the same proposed solution, not invent unrelated parallel implementations.
-5. The coordinator resolves conflicts and produces one integrated implementation.
+4. Acquisition, promotion, partnership, SEO, community outreach, launch, or campaign work routes to Growth & Outreach.
+5. Specialists should review the same proposed solution, not invent unrelated parallel implementations.
+6. The coordinator resolves conflicts and produces one integrated implementation.
 
 ## Safety and production rules
 
@@ -36,6 +38,7 @@ This repository uses a coordinated specialist workflow. The coordinator owns the
 - Do not change production data, destructive migrations, or deployment settings without explicit user authorization.
 - Preserve existing public/unlisted fly-in behavior unless the requested feature intentionally changes it.
 - Keep FAA airport imports idempotent and preserve referenced airport UUIDs.
+- Public promotion and outreach must be approval-based unless the user has explicitly authorized a specific channel/action.
 
 ## Required validation
 
